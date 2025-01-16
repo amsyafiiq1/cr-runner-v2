@@ -18,7 +18,6 @@ const DeliveryPage = () => {
   return (
     <>
       <ScrollView>
-        {/* <SizableText>{JSON.stringify(user.Runner)}</SizableText> */}
         {!user?.Runner?.isOnDuty ? (
           <Card bordered elevate p={"$3"} m={"$3"}>
             <SizableText>
@@ -32,7 +31,7 @@ const DeliveryPage = () => {
                 <Link
                   key={index}
                   href={{
-                    pathname: "/delivery/[id]",
+                    pathname: "/(delivery)/[id]",
                     params: { id: order.id },
                   }}
                   asChild
@@ -95,6 +94,7 @@ const DeliveryPage = () => {
                           flex={1}
                           alignItems="center"
                           gap={"$2"}
+                          mt={"$2"}
                           p={"$2"}
                           backgroundColor={"$gray5"}
                           borderRadius={"$4"}

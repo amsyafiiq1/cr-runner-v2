@@ -1,18 +1,52 @@
 import { Tabs } from "expo-router";
 import { Bell, Bike, ReceiptText, Settings } from "@tamagui/lucide-icons";
 import { Button, Label, Switch, XStack } from "tamagui";
-import { supabase } from "lib/supabase";
 import { useAuthStore } from "store/auth.store";
 
 const _layout = () => {
+  const user = useAuthStore((state) => state.user);
+  const updateOnDuty = useAuthStore((state) => state.updateOnDuty);
   return (
     <Tabs>
       <Tabs.Screen
-        name="delivery"
+        name="home"
         options={{
+          title: "Order",
+          headerShown: true,
+          headerTitleStyle: { opacity: 0 },
+          headerTitleAlign: "center",
           tabBarIcon: ({ color }) => <Bike size={24} color={color} />,
-          headerShown: false,
-          unmountOnBlur: true,
+          // unmountOnBlur: true,
+          headerLeft: () => {
+            return (
+              <XStack gap={"$2"} marginRight={"$4"} alignItems="center">
+                <Switch
+                  size={"$3"}
+                  unstyled={true}
+                  backgroundColor={"lightblue"}
+                  onCheckedChange={updateOnDuty}
+                  checked={user?.Runner?.isOnDuty}
+                >
+                  <Switch.Thumb animation={"quicker"} />
+                </Switch>
+                <Label>{user?.Runner?.isOnDuty ? "Online" : "Offline"}</Label>
+              </XStack>
+            );
+          },
+          headerRight: () => {
+            return (
+              <Button
+                size={"$3"}
+                circular={true}
+                chromeless={true}
+                onPress={() => {
+                  console.log("pressed");
+                }}
+              >
+                <Bell size={"$1"} />
+              </Button>
+            );
+          },
         }}
       />
       <Tabs.Screen

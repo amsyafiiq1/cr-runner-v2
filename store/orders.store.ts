@@ -11,7 +11,7 @@ export interface Order {
   pickup: Location;
   dropoff: Location;
   createdAt: Date;
-  orderStatus: String;
+  orderStatus: "Open" | "On Going" | "Completed" | "Cancelled";
 }
 
 export interface OrderType {
@@ -24,8 +24,8 @@ export interface OrderType {
 export interface Location {
   id: number;
   address: string;
-  latitude: number;
-  longitude: number;
+  latitude: string;
+  longitude: string;
 }
 
 export interface Customer {

@@ -6,6 +6,7 @@ interface ActiveOrderStore {
   activeOrders: Order[];
   getAll: () => Promise<void>;
   subscribeChanges: () => void;
+  startOrder: (orderId: number) => Promise<void>;
 }
 
 export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
@@ -42,6 +43,7 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
     }
   },
   subscribeChanges: () => {
+    console.log("Subscribing to active order changes");
     supabase
       .channel("custom-all-channel")
       .on(
@@ -153,5 +155,27 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
         }
       )
       .subscribe();
+  },
+  startOrder: async (orderId) => {
+    console.log("Starting order", orderId);
+    const { data, error } = await supabase
+      .from("Order")
+      .update({ order_status: "On Going" })
+      .eq("id", orderId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error starting order", error);
+      return;
+    }
+
+    if (data) {
+      set((state) => ({
+        activeOrders: state.activeOrders.map((order) =>
+          order.id === orderId ? { ...order, orderStatus: "On Going" } : order
+        ),
+      }));
+    }
   },
 }));
