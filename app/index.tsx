@@ -3,6 +3,7 @@ import { Spinner, YStack } from "tamagui";
 import { supabase } from "lib/supabase";
 import { router } from "expo-router";
 import { useAuthStore } from "store/auth.store";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const index = () => {
   const loadUser = useAuthStore((state) => state.loadUser);

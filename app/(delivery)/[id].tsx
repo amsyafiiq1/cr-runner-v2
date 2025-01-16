@@ -22,7 +22,7 @@ const ViewOrder = () => {
   const startOrder = useActiveOrderStore((state) => state.startOrder);
 
   const startNow = () => {
-    startOrder(Number(id));
+    // startOrder(Number(id));
     router.navigate({ pathname: "/(ongoing)/[id]", params: { id: id } });
   };
 
@@ -51,21 +51,16 @@ const ViewOrder = () => {
       <ScrollView>
         <YStack m={"$3"} gap={"$2"}>
           <Card bordered elevate>
-            <YStack flex={1} p={"$3"}>
-              <SizableText size={"$5"} fontWeight={800}>
-                Customer
-              </SizableText>
-              <SizableText size={"$3"}>{order?.customer.user.name}</SizableText>
-
-              <XStack
-                theme={"blue"}
-                position="absolute"
-                right={0}
-                top={"50%"}
-                transform={"translateY(-10%)"}
-                mr={"$2"}
-                gap={"$1"}
-              >
+            <XStack flex={1} justifyContent="space-between" alignItems="center">
+              <YStack flex={1} p={"$3"}>
+                <SizableText size={"$5"} fontWeight={800}>
+                  Customer
+                </SizableText>
+                <SizableText size={"$3"}>
+                  {order?.customer.user.name}
+                </SizableText>
+              </YStack>
+              <XStack mr={"$2"} gap={"$1"}>
                 <Button
                   onPress={() => onPressCallButton(order?.customer.user.phone)}
                   theme={"gray"}
@@ -73,7 +68,7 @@ const ViewOrder = () => {
                   <PhoneCall size={"$1"} />
                 </Button>
               </XStack>
-            </YStack>
+            </XStack>
           </Card>
           <Card bordered elevate>
             <YStack flex={1} p={"$3"}>

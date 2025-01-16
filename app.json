@@ -16,9 +16,18 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.amsyafiiq.crrunner",
+      "config": {
+        "googleMapsApiKey": "AIzaSyCsjewXsc0ZO2_JXtdGQixUKdRNsalu4FA"
+      }
     },
     "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCsjewXsc0ZO2_JXtdGQixUKdRNsalu4FA"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"

@@ -4,13 +4,16 @@ import { Order } from "./orders.store";
 
 interface ActiveOrderStore {
   activeOrders: Order[];
+  ongoingOrder: Order | null;
   getAll: () => Promise<void>;
+  getOngoing: (orderId: number) => Promise<void>;
   subscribeChanges: () => void;
   startOrder: (orderId: number) => Promise<void>;
 }
 
 export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
   activeOrders: [],
+  ongoingOrder: null,
   getAll: async () => {
     const { data, error } = await supabase
       .from("Order")
@@ -40,6 +43,36 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
 
     if (data) {
       set({ activeOrders: data as any });
+    }
+  },
+  getOngoing: async (orderId) => {
+    const { data, error } = await supabase
+      .from("Order")
+      .select(
+        `
+        *,
+        id, 
+        remarks, 
+        payment, 
+        runner:Runner!runner_id(*), 
+        customer:Customer!customer_id(id, user:User!id(*)), 
+        orderType:Order_Type!order_type_id(*), 
+        pickup:Location!pickup_id(*), 
+        dropoff:Location!dropoff_id(*),
+        createdAt:created_at,
+        orderStatus:order_status
+      `
+      )
+      .eq("id", orderId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching ongoing order", error);
+      return;
+    }
+
+    if (data) {
+      set({ ongoingOrder: data as any });
     }
   },
   subscribeChanges: () => {
