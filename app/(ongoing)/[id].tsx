@@ -11,7 +11,6 @@ import {
   useTheme,
 } from "tamagui";
 import { Stack, useLocalSearchParams } from "expo-router";
-import * as Location from "expo-location";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { Linking, Platform, StyleSheet } from "react-native";
