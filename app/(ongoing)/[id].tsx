@@ -2,8 +2,8 @@ import {
   Button,
   Card,
   Circle,
-  Separator,
   SizableText,
+  Spinner,
   View,
   XGroup,
   XStack,
@@ -11,37 +11,58 @@ import {
   useTheme,
 } from "tamagui";
 import { Stack, useLocalSearchParams } from "expo-router";
+import * as Location from "expo-location";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import { Linking, Platform, StyleSheet } from "react-native";
-import { Bike, Dot, Navigation, Phone } from "@tamagui/lucide-icons";
-import { useActiveOrderStore } from "store/active-order.store";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { Bike, Navigation, Phone } from "@tamagui/lucide-icons";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BottomSheet, {
-  BottomSheetHandle,
   BottomSheetView,
   BottomSheetFooter,
 } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useOnGoingStore } from "store/on-going.store";
+import { useFocusEffect } from "@react-navigation/native";
 
 const OnGoingPage = () => {
   const id = useLocalSearchParams<{ id: string }>().id;
-  const selectedOrder = useActiveOrderStore((state) => state.ongoingOrder);
-  const getOngoing = useActiveOrderStore((state) => state.getOngoing);
+  const selectedOrder = useOnGoingStore((state) => state.ongoingOrder);
+  const getOngoing = useOnGoingStore((state) => state.getOngoing);
+  const userLocation = useOnGoingStore((state) => state.userLiveLocation);
+  const getLiveLocation = useOnGoingStore((state) => state.getUserLiveLocation);
 
   const pickupColor = "$green11Light";
   const dropoffColor = "$red11Light";
 
+  const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+
   const snapPoints = useMemo(() => ["45%"], []);
 
-  const initialRegion = {
-    latitude: 3.0718155097395994,
-    longitude: 101.50004155925505,
-    latitudeDelta: 0.001,
-    longitudeDelta: 0.01,
+  const [initialRegion, setInitialRegion] = useState({
+    latitude: 3.0700939853725044,
+    longitude: 101.49932443650975,
+    latitudeDelta: 0.0122,
+    longitudeDelta: 0.0121,
+  });
+
+  const pickup = {
+    latitude: Number(selectedOrder?.pickup.latitude)!,
+    longitude: Number(selectedOrder?.pickup.longitude)!,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  };
+
+  const dropoff = {
+    latitude: Number(selectedOrder?.dropoff.latitude)!,
+    longitude: Number(selectedOrder?.dropoff.longitude)!,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
   };
 
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const mapRef = useRef<MapView>(null);
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
@@ -83,11 +104,46 @@ const OnGoingPage = () => {
     }
   };
 
+  // Replace useEffect with useFocusEffect
+  useFocusEffect(
+    useCallback(() => {
+      getOngoing(Number(id));
+      getLiveLocation();
+    }, [getOngoing, getLiveLocation, id])
+  );
+
   useEffect(() => {
-    getOngoing(Number(id));
-  }, [getOngoing, id]);
+    setInitialRegion({
+      latitude: 3.0767948948878945,
+      longitude: 101.50092601247685,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+  }, []);
+
+  useEffect(() => {}, []);
 
   const theme = useTheme();
+
+  // Update loading check
+  if (!userLocation) {
+    return (
+      <>
+        <Stack.Screen
+          options={{
+            title: "On Going",
+            headerShown: false,
+            freezeOnBlur: false,
+          }}
+        />
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <Spinner size="large" />
+        </View>
+      </>
+    );
+  }
 
   return (
     <>
@@ -95,17 +151,79 @@ const OnGoingPage = () => {
         options={{
           title: "On Going",
           headerShown: false,
+          freezeOnBlur: false,
         }}
       />
 
       <GestureHandlerRootView style={styles.container}>
-        <View zIndex={0} flex={1}>
+        <View
+          zIndex={0}
+          flex={1}
+          position="absolute"
+          top={0}
+          left={0}
+          width="100%"
+          height="65%"
+        >
           <MapView
+            ref={mapRef}
             style={styles.map}
             initialRegion={initialRegion}
             provider={PROVIDER_GOOGLE}
             customMapStyle={mapStyle}
-          ></MapView>
+          >
+            {/* Add key prop to force re-render */}
+            <MapViewDirections
+              origin={{
+                latitude:
+                  userLocation?.coords.latitude ?? initialRegion.latitude,
+                longitude:
+                  userLocation?.coords.longitude ?? initialRegion.longitude,
+              }}
+              destination={{
+                latitude: pickup.latitude,
+                longitude: pickup.longitude,
+              }}
+              apikey={GOOGLE_MAPS_APIKEY!}
+              strokeWidth={4}
+              strokeColor={theme.green10.val}
+              optimizeWaypoints={true}
+              onReady={(result) => {
+                mapRef.current?.fitToCoordinates(result.coordinates, {
+                  edgePadding: {
+                    right: 30,
+                    left: 30,
+                    top: 100,
+                    bottom: 200,
+                  },
+                });
+              }}
+            />
+            <Marker
+              coordinate={{
+                latitude: userLocation.coords.latitude,
+                longitude: userLocation.coords.longitude,
+              }}
+              title="Your Location"
+            />
+
+            <Marker
+              coordinate={{
+                latitude:
+                  userLocation?.coords.latitude ?? initialRegion.latitude,
+                longitude:
+                  userLocation?.coords.longitude ?? initialRegion.longitude,
+              }}
+            ></Marker>
+            <Marker
+              coordinate={{
+                latitude: pickup.latitude,
+                longitude: pickup.longitude,
+              }}
+              title={"Dropoff"}
+              description={selectedOrder?.dropoff.address}
+            ></Marker>
+          </MapView>
         </View>
         <BottomSheet
           ref={bottomSheetRef}
@@ -184,7 +302,7 @@ const OnGoingPage = () => {
                 </YStack>
               </YStack>
             </YStack>
-            <Card gap={"$4"} mb={30}>
+            <Card gap={"$4"} mb={30} mx={"$4"}>
               <XStack
                 justifyContent="space-between"
                 alignItems="center"

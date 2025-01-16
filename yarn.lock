@@ -5,18 +5,6 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@0no-co/graphql.web@npm:^1.0.5":
-  version: 1.0.13
-  resolution: "@0no-co/graphql.web@npm:1.0.13"
-  peerDependencies:
-    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
-  peerDependenciesMeta:
-    graphql:
-      optional: true
-  checksum: 10/c392d9ff60b11ea8bb11f7ba456331ec074f6a5f8fb53aae0cb1d962e19c8b89e669b024958b2054c4113cdbed1198b0e21e3a4f7f46d7141354e4a7d609e0f8
-  languageName: node
-  linkType: hard
-
 "@ampproject/remapping@npm:^2.2.0":
   version: 2.3.0
   resolution: "@ampproject/remapping@npm:2.3.0"
@@ -5055,7 +5043,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/core@npm:2.3.6":
+"@urql/core@npm:2.3.6, @urql/core@npm:>=2.3.1":
   version: 2.3.6
   resolution: "@urql/core@npm:2.3.6"
   dependencies:
@@ -5064,16 +5052,6 @@ __metadata:
   peerDependencies:
     graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 10/83b239f5559f380fff8f88ddeac15977443d97b83c47b2066315194e37a5b27b1b1f777a588f8ecb3bb823f522755a20337d3437119721328fd53f08fa55b361
-  languageName: node
-  linkType: hard
-
-"@urql/core@npm:>=2.3.1":
-  version: 5.1.0
-  resolution: "@urql/core@npm:5.1.0"
-  dependencies:
-    "@0no-co/graphql.web": "npm:^1.0.5"
-    wonka: "npm:^6.3.2"
-  checksum: 10/c3573f03af0d73fa8b0fc24bbc27e1f27815b1c4430f147fa248fec36f905a69d59d186210b7d02551517eb00ba9ca47232b96613d5cc12e0ab56fd0d96c858c
   languageName: node
   linkType: hard
 
@@ -6553,14 +6531,16 @@ __metadata:
     babel-preset-expo: "npm:^11.0.6"
     burnt: "npm:^0.12.2"
     date-fns: "npm:^4.1.0"
-    expo: "npm:~51.0.32"
+    expo: "npm:~51.0.39"
     expo-build-properties: "npm:~0.12.5"
     expo-font: "npm:~12.0.10"
     expo-linking: "npm:~6.3.1"
-    expo-router: "npm:~3.5.23"
-    expo-splash-screen: "npm:~0.27.5"
+    expo-location: "npm:~17.0.1"
+    expo-router: "npm:~3.5.24"
+    expo-splash-screen: "npm:~0.27.7"
     expo-status-bar: "npm:^1.12.1"
     expo-system-ui: "npm:~3.0.7"
+    expo-task-manager: "npm:~11.8.2"
     expo-web-browser: "npm:~13.0.3"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
@@ -6569,6 +6549,7 @@ __metadata:
     react-native-gesture-handler: "npm:~2.16.1"
     react-native-map-link: "npm:^3.6.1"
     react-native-maps: "npm:1.14.0"
+    react-native-maps-directions: "npm:^1.9.0"
     react-native-reanimated: "npm:~3.10.1"
     react-native-safe-area-context: "npm:4.10.5"
     react-native-screens: "npm:3.31.1"
@@ -7569,6 +7550,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-location@npm:~17.0.1":
+  version: 17.0.1
+  resolution: "expo-location@npm:17.0.1"
+  peerDependencies:
+    expo: "*"
+  checksum: 10/be9bf57cba0bf28b747d24be9342085068943e1081cc489ed5efc69d07ae3a87cc20329a3e6b3dd1738dd12a2603125fb70cf9d8b2d9e95e59baa2d1011b140d
+  languageName: node
+  linkType: hard
+
 "expo-modules-autolinking@npm:1.11.3":
   version: 1.11.3
   resolution: "expo-modules-autolinking@npm:1.11.3"
@@ -7595,7 +7585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-router@npm:~3.5.23":
+"expo-router@npm:~3.5.24":
   version: 3.5.24
   resolution: "expo-router@npm:3.5.24"
   dependencies:
@@ -7628,7 +7618,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-splash-screen@npm:0.27.7, expo-splash-screen@npm:~0.27.5":
+"expo-splash-screen@npm:0.27.7, expo-splash-screen@npm:~0.27.7":
   version: 0.27.7
   resolution: "expo-splash-screen@npm:0.27.7"
   dependencies:
@@ -7658,6 +7648,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-task-manager@npm:~11.8.2":
+  version: 11.8.2
+  resolution: "expo-task-manager@npm:11.8.2"
+  dependencies:
+    unimodules-app-loader: "npm:~4.6.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10/86934708b4d9b3ab28bc2bab4be4f06e052ba24e1926248da23264238a3a058a4361c042098bbf2bf26762403a11e888062d131f1d8467c109e193f468dbc135
+  languageName: node
+  linkType: hard
+
 "expo-web-browser@npm:~13.0.3":
   version: 13.0.3
   resolution: "expo-web-browser@npm:13.0.3"
@@ -7667,7 +7668,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:~51.0.32":
+"expo@npm:~51.0.39":
   version: 51.0.39
   resolution: "expo@npm:51.0.39"
   dependencies:
@@ -9920,6 +9921,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.isequal@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.isequal@npm:4.5.0"
+  checksum: 10/82fc58a83a1555f8df34ca9a2cd300995ff94018ac12cc47c349655f0ae1d4d92ba346db4c19bbfc90510764e0c00ddcc985a358bdcd4b3b965abf8f2a48a214
+  languageName: node
+  linkType: hard
+
 "lodash.throttle@npm:^4.1.1":
   version: 4.1.1
   resolution: "lodash.throttle@npm:4.1.1"
@@ -11617,7 +11625,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.6.0, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -11894,6 +11902,20 @@ __metadata:
     react: ">=16.8.0"
     react-native: ">=0.40.0"
   checksum: 10/3c844e01fd2509dfe2a504cd57dc354638785e8065a6026254a08133591761ff7ee46f480c9eead018e926689239e408dbd6328fa848284897e7e3c6121d507a
+  languageName: node
+  linkType: hard
+
+"react-native-maps-directions@npm:^1.9.0":
+  version: 1.9.0
+  resolution: "react-native-maps-directions@npm:1.9.0"
+  dependencies:
+    lodash.isequal: "npm:^4.5.0"
+    prop-types: "npm:^15.6.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-maps: ">=1.0.0"
+  checksum: 10/5c63debb8c32f8e19678e500314b88ca4448cc45d5ef0e8783a7ff798b717307156171c418d51eda8570d5627b509ce5ff497b848990e2f6df17c75b3c09bd99
   languageName: node
   linkType: hard
 
@@ -14011,6 +14033,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unimodules-app-loader@npm:~4.6.0":
+  version: 4.6.0
+  resolution: "unimodules-app-loader@npm:4.6.0"
+  checksum: 10/0ccf419cb5a0821b049ec8ea4611662e97ca6d3ae89b5e0ee53d1d4aa050f4c732e5acbca6e4bb0443365436fef1c6038c03a7443cfbbe3d08eece7c2135d522
+  languageName: node
+  linkType: hard
+
 "unique-filename@npm:^3.0.0":
   version: 3.0.0
   resolution: "unique-filename@npm:3.0.0"
@@ -14528,13 +14557,6 @@ __metadata:
   version: 4.0.15
   resolution: "wonka@npm:4.0.15"
   checksum: 10/33810f67e1f981181689e7c61129d21b3591bc48bc91516d164cb1b85bd09ada33ef0a3ad3922484912b848a50c84d0318e3428dccc597e491f9829fd0b1fe61
-  languageName: node
-  linkType: hard
-
-"wonka@npm:^6.3.2":
-  version: 6.3.4
-  resolution: "wonka@npm:6.3.4"
-  checksum: 10/0f102630182828268b57b54102003449b97abbc2483392239baf856a2fca7b72ae9be67c208415124a3d26a320674ed64387e9bf07a8d0badedb5f607d2ccfdc
   languageName: node
   linkType: hard
 
