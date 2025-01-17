@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
-import { Order } from "./orders.store";
+import { Order, ORDER_STATUS } from "./orders.store";
 
 interface ActiveOrderStore {
   activeOrders: Order[];
@@ -8,7 +8,7 @@ interface ActiveOrderStore {
   getAll: () => Promise<void>;
   getOngoing: (orderId: number) => Promise<void>;
   subscribeChanges: () => void;
-  startOrder: (orderId: number) => Promise<void>;
+  startOrder: (orderId: number, runnerId: number) => Promise<void>;
 }
 
 export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
@@ -31,7 +31,7 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
         orderStatus:order_status
       `
       )
-      .eq("order_status", "Open")
+      .eq("order_status", ORDER_STATUS.OPEN)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -119,7 +119,7 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
           } else if (payload.eventType === "UPDATE") {
             const updatedOrder = payload.new as any;
 
-            if (updatedOrder.order_status === "Open") {
+            if (updatedOrder.order_status === ORDER_STATUS.OPEN) {
               const { data: orderWithDetails } = await supabase
                 .from("Order")
                 .select(
@@ -177,7 +177,7 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
                       } as Order)
                     : order
                 )
-                .filter((order) => order.orderStatus === "Open")
+                .filter((order) => order.orderStatus === ORDER_STATUS.OPEN)
                 .sort(
                   (a, b) =>
                     new Date(b.createdAt).getTime() -
@@ -189,11 +189,11 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
       )
       .subscribe();
   },
-  startOrder: async (orderId) => {
+  startOrder: async (orderId, runnerId) => {
     console.log("Starting order", orderId);
     const { data, error } = await supabase
       .from("Order")
-      .update({ order_status: "On Going" })
+      .update({ order_status: ORDER_STATUS.ON_GOING, runner_id: runnerId })
       .eq("id", orderId)
       .select()
       .single();
@@ -206,7 +206,9 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
     if (data) {
       set((state) => ({
         activeOrders: state.activeOrders.map((order) =>
-          order.id === orderId ? { ...order, orderStatus: "On Going" } : order
+          order.id === orderId
+            ? { ...order, orderStatus: ORDER_STATUS.ON_GOING }
+            : order
         ),
       }));
     }

@@ -11,8 +11,19 @@ export interface Order {
   pickup: Location;
   dropoff: Location;
   createdAt: Date;
-  orderStatus: "Open" | "On Going" | "Completed" | "Cancelled";
+  orderStatus: OrderStatus;
 }
+
+export const ORDER_STATUS = {
+  OPEN: "OPEN",
+  ON_GOING: "ON_GOING",
+  PICKED_UP: "PICKED_UP",
+  COMPLETED: "COMPLETED",
+  CANCELED: "CANCELED",
+} as const;
+
+// For type annotations
+export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
 export interface OrderType {
   id: number;
@@ -52,6 +63,8 @@ interface OrderStore {
   orders: Order[];
   errors: any;
   getOrders: () => Promise<void>;
+  startOrder: (orderId: number, runnerId: number) => Promise<void>;
+  initialize: () => void;
 }
 
 export const useOrderStore = create<OrderStore>((set) => ({
@@ -84,14 +97,41 @@ export const useOrderStore = create<OrderStore>((set) => ({
     if (data) {
       set({ orders: data as any, errors: error });
     }
+  },
+  startOrder: async (orderId, runnerId) => {
+    console.log("Starting order", orderId);
+    const { data, error } = await supabase
+      .from("Order")
+      .update({ order_status: ORDER_STATUS.ON_GOING, runner_id: runnerId })
+      .eq("id", orderId)
+      .select()
+      .single();
 
-    const subscription = supabase
-      .channel("custom-all-channel")
+    if (error) {
+      console.error("Error starting order", error);
+      return;
+    }
+
+    if (data) {
+      set((state) => ({
+        orders: state.orders.map((order) =>
+          order.id === orderId
+            ? { ...order, orderStatus: ORDER_STATUS.ON_GOING }
+            : order
+        ),
+      }));
+    }
+  },
+  initialize: () => {
+    console.log("Order channel initialized...");
+    supabase
+      .channel("subscription")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "Order" },
         (payload) => {
           const updatedOrder = payload.new as any;
+          console.log("Order updated: ", updatedOrder);
           set((state) => ({
             orders: state.orders.map((order) =>
               order.id === updatedOrder.id
@@ -108,3 +148,6 @@ export const useOrderStore = create<OrderStore>((set) => ({
       .subscribe();
   },
 }));
+
+// Initialize subscription immediately
+useOrderStore.getState().initialize();

@@ -10,29 +10,33 @@ import {
   YStack,
   useTheme,
 } from "tamagui";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { Linking, Platform, StyleSheet } from "react-native";
-import { Bike, Navigation, Phone } from "@tamagui/lucide-icons";
+import { Bike, MapPinCheck, Navigation, Phone } from "@tamagui/lucide-icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BottomSheet, {
   BottomSheetView,
   BottomSheetFooter,
 } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useOnGoingStore } from "store/on-going.store";
+import { startTracking, useOnGoingStore } from "store/on-going.store";
+import { ORDER_STATUS } from "store/orders.store";
 import { useFocusEffect } from "@react-navigation/native";
-
 const OnGoingPage = () => {
   const id = useLocalSearchParams<{ id: string }>().id;
   const selectedOrder = useOnGoingStore((state) => state.ongoingOrder);
-  const getOngoing = useOnGoingStore((state) => state.getOngoing);
   const userLocation = useOnGoingStore((state) => state.userLiveLocation);
-  const getLiveLocation = useOnGoingStore((state) => state.getUserLiveLocation);
+  const getOngoing = useOnGoingStore((state) => state.getOngoing);
+  const changeStatus = useOnGoingStore((state) => state.changeStatus);
+  const [buttonText, setButtonText] = useState("Arrived at Pickup");
 
-  const pickupColor = "$green11Light";
-  const dropoffColor = "$red11Light";
+  const theme = useTheme();
+
+  const pickupColor = theme.blue10Light.val;
+  const dropoffColor = theme.yellow10Light.val;
+  const completedColor = theme.green10Light.val;
 
   const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -45,19 +49,10 @@ const OnGoingPage = () => {
     longitudeDelta: 0.0121,
   });
 
-  const pickup = {
-    latitude: Number(selectedOrder?.pickup.latitude)!,
-    longitude: Number(selectedOrder?.pickup.longitude)!,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  };
-
-  const dropoff = {
-    latitude: Number(selectedOrder?.dropoff.latitude)!,
-    longitude: Number(selectedOrder?.dropoff.longitude)!,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  };
+  const [naviation, setNavigation] = useState<{
+    origin: { latitude: number; longitude: number };
+    destination: { latitude: number; longitude: number };
+  }>();
 
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -68,6 +63,65 @@ const OnGoingPage = () => {
     console.log("handleSheetChanges", index);
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      getOngoing(Number(id));
+      startTracking();
+    }, [getOngoing, startTracking, id])
+  );
+
+  useEffect(() => {
+    setInitialRegion({
+      latitude: 3.0767948948878945,
+      longitude: 101.50092601247685,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userLocation || !selectedOrder) {
+      console.log("Waiting for user location or order data...");
+      return;
+    }
+
+    console.log("Updating navigation with new location/order data");
+
+    if (selectedOrder.orderStatus === ORDER_STATUS.ON_GOING) {
+      console.log("Setting navigation to pickup location");
+      setButtonText("Arrived at Pickup");
+      setNavigation({
+        origin: {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+        },
+        destination: {
+          latitude: Number(selectedOrder.pickup.latitude),
+          longitude: Number(selectedOrder.pickup.longitude),
+        },
+      });
+    } else if (selectedOrder.orderStatus === ORDER_STATUS.PICKED_UP) {
+      console.log("Setting navigation to dropoff location");
+      setButtonText("Arrived at Dropoff");
+      setNavigation({
+        origin: {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+        },
+        destination: {
+          latitude: Number(selectedOrder.dropoff.latitude),
+          longitude: Number(selectedOrder.dropoff.longitude),
+        },
+      });
+    } else if (selectedOrder.orderStatus === ORDER_STATUS.COMPLETED) {
+      console.log("Order completed");
+      setButtonText("Order Completed");
+    } else {
+      console.log("Invalid order status");
+      console.log(selectedOrder.orderStatus);
+    }
+  }, [userLocation, selectedOrder]); // Add dependencies that should trigger updates
+
   const renderFooter = useCallback(
     (props) => (
       <BottomSheetFooter
@@ -75,13 +129,40 @@ const OnGoingPage = () => {
         style={{ backgroundColor: theme.background.val, paddingBottom: 32 }}
       >
         <View px="$4">
-          <Button size="$4" width="100%" theme={"green"} variant="outlined">
-            Arrived
+          <Button
+            size="$4"
+            width="100%"
+            theme={
+              selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                ? "blue"
+                : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                ? "yellow"
+                : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                ? "green"
+                : "blue"
+            }
+            variant="outlined"
+            borderRadius={"$12"}
+            onPress={() => {
+              if (selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING) {
+                changeStatus(Number(id), ORDER_STATUS.PICKED_UP);
+              } else if (
+                selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+              ) {
+                changeStatus(Number(id), ORDER_STATUS.COMPLETED);
+              } else if (
+                selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+              ) {
+                router.navigate("/(tabs)/home");
+              }
+            }}
+          >
+            {buttonText}
           </Button>
         </View>
       </BottomSheetFooter>
     ),
-    []
+    [selectedOrder, buttonText, id, changeStatus, theme.background.val] // Add all dependencies]
   );
 
   type OpenMapArgs = {
@@ -103,29 +184,8 @@ const OnGoingPage = () => {
     }
   };
 
-  // Replace useEffect with useFocusEffect
-  useFocusEffect(
-    useCallback(() => {
-      getOngoing(Number(id));
-      getLiveLocation();
-    }, [getOngoing, getLiveLocation, id])
-  );
-
-  useEffect(() => {
-    setInitialRegion({
-      latitude: 3.0767948948878945,
-      longitude: 101.50092601247685,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    });
-  }, []);
-
-  useEffect(() => {}, []);
-
-  const theme = useTheme();
-
   // Update loading check
-  if (!userLocation) {
+  if (!selectedOrder || !naviation) {
     return (
       <>
         <Stack.Screen
@@ -169,23 +229,22 @@ const OnGoingPage = () => {
             style={styles.map}
             initialRegion={initialRegion}
             provider={PROVIDER_GOOGLE}
-            customMapStyle={mapStyle}
           >
             {/* Add key prop to force re-render */}
             <MapViewDirections
-              origin={{
-                latitude:
-                  userLocation?.coords.latitude ?? initialRegion.latitude,
-                longitude:
-                  userLocation?.coords.longitude ?? initialRegion.longitude,
-              }}
-              destination={{
-                latitude: pickup.latitude,
-                longitude: pickup.longitude,
-              }}
+              origin={naviation?.origin}
+              destination={naviation?.destination}
               apikey={GOOGLE_MAPS_APIKEY!}
-              strokeWidth={4}
-              strokeColor={theme.green10.val}
+              strokeWidth={5}
+              strokeColor={
+                selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                  ? theme.green10.val
+                  : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                  ? theme.yellow11.val
+                  : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                  ? theme.yellow11.val
+                  : theme.green10.val
+              }
               optimizeWaypoints={true}
               onReady={(result) => {
                 mapRef.current?.fitToCoordinates(result.coordinates, {
@@ -200,27 +259,16 @@ const OnGoingPage = () => {
             />
             <Marker
               coordinate={{
-                latitude: userLocation.coords.latitude,
-                longitude: userLocation.coords.longitude,
+                latitude: naviation?.origin?.latitude!,
+                longitude: naviation?.origin?.longitude!,
               }}
-              title="Your Location"
             />
 
             <Marker
               coordinate={{
-                latitude:
-                  userLocation?.coords.latitude ?? initialRegion.latitude,
-                longitude:
-                  userLocation?.coords.longitude ?? initialRegion.longitude,
+                latitude: naviation?.destination?.latitude!,
+                longitude: naviation?.destination?.longitude!,
               }}
-            ></Marker>
-            <Marker
-              coordinate={{
-                latitude: pickup.latitude,
-                longitude: pickup.longitude,
-              }}
-              title={"Dropoff"}
-              description={selectedOrder?.dropoff.address}
             ></Marker>
           </MapView>
         </View>
@@ -253,8 +301,25 @@ const OnGoingPage = () => {
 
                 {/* Order Type */}
                 <YStack flex={1} justifyContent="center" alignItems="center">
-                  <SizableText fontWeight={800} color={"$green10"}>
-                    Collect Order
+                  <SizableText
+                    fontWeight={800}
+                    color={
+                      selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                        ? pickupColor
+                        : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                        ? dropoffColor
+                        : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                        ? completedColor
+                        : pickupColor
+                    }
+                  >
+                    {selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                      ? "Collecting Order"
+                      : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                      ? "Delivering Order"
+                      : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                      ? "Order Complete"
+                      : null}
                   </SizableText>
                   <SizableText>{selectedOrder?.orderType.name}</SizableText>
                 </YStack>
@@ -285,18 +350,48 @@ const OnGoingPage = () => {
                 <XStack justifyContent="center" alignItems="center">
                   <Circle
                     size={"$8"}
-                    backgroundColor={pickupColor}
+                    backgroundColor={
+                      selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                        ? pickupColor
+                        : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                        ? dropoffColor
+                        : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                        ? completedColor
+                        : pickupColor
+                    }
                     justifyContent={"center"}
                   >
-                    <Bike size={"$4"} />
+                    {selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING ? (
+                      <Bike size={"$4"} />
+                    ) : selectedOrder?.orderStatus ===
+                      ORDER_STATUS.PICKED_UP ? (
+                      <Bike size={"$4"} />
+                    ) : selectedOrder?.orderStatus ===
+                      ORDER_STATUS.COMPLETED ? (
+                      <MapPinCheck size={"$4"} />
+                    ) : (
+                      <Bike size={"$4"} />
+                    )}
                   </Circle>
                 </XStack>
-                <YStack gap={"$2"}>
+                <YStack gap={"$2"} minHeight={"$8"}>
                   <SizableText fontWeight={800} textAlign="center">
-                    Pickup
+                    {selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                      ? "Pickup Location"
+                      : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                      ? "Dropoff Location"
+                      : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                      ? "Completed"
+                      : null}
                   </SizableText>
                   <SizableText textAlign="center">
-                    {selectedOrder?.pickup.address}
+                    {selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                      ? selectedOrder?.pickup.address
+                      : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                      ? selectedOrder?.dropoff.address
+                      : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                      ? null
+                      : null}
                   </SizableText>
                 </YStack>
               </YStack>
@@ -371,51 +466,5 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 });
-
-// Add this constant outside the component
-const mapStyle = [
-  {
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#242f3e",
-      },
-    ],
-  },
-  {
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#746855",
-      },
-    ],
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#242f3e",
-      },
-    ],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#38414e",
-      },
-    ],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        color: "#212a37",
-      },
-    ],
-  },
-];
 
 export default OnGoingPage;

@@ -1,10 +1,40 @@
 import { create } from "zustand";
-import { Order } from "./orders.store";
+import { Order, OrderStatus } from "./orders.store";
 import { supabase } from "lib/supabase";
 import * as Location from "expo-location";
+import { useAuthStore } from "./auth.store";
 import * as TaskManager from "expo-task-manager";
 
-const LOCATION_TRACKING = "background-location-task";
+interface OnGoingStore {
+  ongoingOrder: Order | null;
+  userLiveLocation: any;
+  getOngoing: (orderId: number) => Promise<void>;
+  changeStatus: (orderId: number, status: OrderStatus) => Promise<void>;
+  setUserLiveLocation: (location: any) => void;
+  updateUserLiveLocation: (location: any) => Promise<void>;
+}
+
+const LOCATION_TRACKING = "LOCATION_TRACKING";
+
+export const startTracking = async () => {
+  const { status: foregroundStatus } =
+    await Location.requestForegroundPermissionsAsync();
+  if (foregroundStatus === "granted") {
+    const { status } = await Location.requestBackgroundPermissionsAsync();
+    if (status === "granted") {
+      await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
+        accuracy: Location.Accuracy.BestForNavigation,
+        timeInterval: 1000,
+        distanceInterval: 10,
+        showsBackgroundLocationIndicator: true,
+        foregroundService: {
+          notificationTitle: "Location Tracking",
+          notificationBody: "Tracking your location",
+        },
+      });
+    }
+  }
+};
 
 TaskManager.defineTask(LOCATION_TRACKING, ({ data, error }) => {
   if (error) {
@@ -12,22 +42,13 @@ TaskManager.defineTask(LOCATION_TRACKING, ({ data, error }) => {
     return;
   }
   if (data) {
-    const { locations } = data as { locations: Location.LocationObject[] };
-    const { getUserLiveLocation } = useOnGoingStore.getState();
-    getUserLiveLocation();
+    const { setUserLiveLocation } = useOnGoingStore.getState();
+    const { locations } = data as any;
+
+    console.log("Location update", locations[0]);
+    setUserLiveLocation(locations[0]);
   }
 });
-
-interface OnGoingStore {
-  ongoingOrder: Order | null;
-  userLiveLocation: any;
-  getOngoing: (orderId: number) => Promise<void>;
-  changeStatus: (orderId: number, status: string) => Promise<void>;
-  getUserLiveLocation: () => Promise<void>;
-  updateUserLiveLocation: (location: any) => Promise<void>;
-}
-
-let foregroundSubscription: { remove: () => void } | null = null;
 
 export const useOnGoingStore = create<OnGoingStore>((set) => ({
   ongoingOrder: null,
@@ -62,6 +83,7 @@ export const useOnGoingStore = create<OnGoingStore>((set) => ({
       set({ ongoingOrder: data as any });
     }
   },
+
   changeStatus: async (orderId, status) => {
     const { data, error } = await supabase
       .from("Order")
@@ -72,36 +94,43 @@ export const useOnGoingStore = create<OnGoingStore>((set) => ({
       console.error("Error changing order status", error);
       return;
     }
+    set((state) => ({
+      ...state,
+      ongoingOrder: state.ongoingOrder
+        ? {
+            ...state.ongoingOrder,
+            orderStatus: status,
+          }
+        : state.ongoingOrder,
+    }));
+  },
 
-    if (data) {
-      useOnGoingStore.getState().getOngoing(orderId);
+  setUserLiveLocation: (location: any) => {
+    const { coords } = location;
+
+    set({
+      userLiveLocation: {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      },
+    });
+  },
+
+  updateUserLiveLocation: async (location) => {
+    const { error } = await supabase.from("Runner_Live_Location").upsert(
+      {
+        runner_id: useAuthStore.getState().user.id,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      },
+      {
+        onConflict: "runner_id",
+      }
+    );
+
+    if (error) {
+      console.error("Error updating live location", error);
+      return;
     }
   },
-  getUserLiveLocation: async () => {
-    const { status } = await Location.requestBackgroundPermissionsAsync();
-    if (status === "granted") {
-      await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
-        accuracy: Location.Accuracy.BestForNavigation,
-        timeInterval: 5000,
-        distanceInterval: 10,
-        foregroundService: {
-          notificationTitle: "Location Tracking",
-          notificationBody: "Tracking your location for delivery",
-        },
-      });
-
-      Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.BestForNavigation,
-          timeInterval: 5000,
-          distanceInterval: 10,
-        },
-        (location) => {
-          set({ userLiveLocation: location });
-        }
-      );
-    }
-  },
-  updateUserLiveLocation: async (location) => {},
-  stopLocationTracking: () => {},
 }));

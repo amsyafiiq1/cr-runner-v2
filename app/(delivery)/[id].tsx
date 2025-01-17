@@ -13,16 +13,19 @@ import { MapPin, MessageSquareText, PhoneCall } from "@tamagui/lucide-icons";
 import { format } from "date-fns";
 import { useActiveOrderStore } from "store/active-order.store";
 import { Linking, Platform } from "react-native";
+import { useAuthStore } from "store/auth.store";
+import { useOrderStore } from "store/orders.store";
 
 const ViewOrder = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const order = useActiveOrderStore((state) =>
-    state.activeOrders.find((order) => order.id.toString() === id)
+  const { user } = useAuthStore.getState();
+  const order = useOrderStore((state) =>
+    state.orders.find((order) => order.id.toString() === id)
   );
-  const startOrder = useActiveOrderStore((state) => state.startOrder);
+  const startOrder = useOrderStore((state) => state.startOrder);
 
   const startNow = () => {
-    // startOrder(Number(id));
+    startOrder(Number(id), user.id);
     router.navigate({ pathname: "/(ongoing)/[id]", params: { id: id } });
   };
 

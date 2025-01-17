@@ -3,12 +3,13 @@ import { useActiveOrderStore } from "store/active-order.store";
 import { useAuthStore } from "store/auth.store";
 import { Link } from "expo-router";
 import { MapPin, MessageSquareText } from "@tamagui/lucide-icons";
-import { format } from "date-fns";
+import { format, sub } from "date-fns";
 import { useEffect } from "react";
+import { ORDER_STATUS, useOrderStore } from "store/orders.store";
 
 const DeliveryPage = () => {
-  const orders = useActiveOrderStore((state) => state.activeOrders);
-  const getAll = useActiveOrderStore((state) => state.getAll);
+  const orders = useOrderStore((state) => state.orders);
+  const getAll = useOrderStore((state) => state.getOrders);
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
@@ -27,12 +28,12 @@ const DeliveryPage = () => {
         ) : (
           <YStack gap={"$2"} p={"$2"}>
             {orders.map((order, index) =>
-              order.orderStatus === "Open" ? (
+              order.orderStatus === ORDER_STATUS.OPEN ? (
                 <Link
                   key={index}
                   href={{
                     pathname: "/(delivery)/[id]",
-                    params: { id: order.id },
+                    params: { id: order.id.toString() },
                   }}
                   asChild
                 >
