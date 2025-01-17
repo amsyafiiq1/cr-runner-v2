@@ -238,7 +238,7 @@ const OnGoingPage = () => {
               strokeWidth={5}
               strokeColor={
                 selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
-                  ? theme.green10.val
+                  ? theme.blue10.val
                   : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
                   ? theme.yellow11.val
                   : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED

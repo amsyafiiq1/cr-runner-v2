@@ -106,7 +106,7 @@ const ViewOrder = () => {
             width={"100%"}
             theme={"blue"}
             onPress={() =>
-              router.navigate({
+              router.push({
                 pathname: "/(ongoing)/[id]",
                 params: { id: order?.id.toString()! },
               })

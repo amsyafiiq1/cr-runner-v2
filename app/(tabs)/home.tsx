@@ -1,17 +1,30 @@
 import { Card, Circle, ScrollView, SizableText, XStack, YStack } from "tamagui";
 import { useActiveOrderStore } from "store/active-order.store";
 import { useAuthStore } from "store/auth.store";
-import { Link } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import { MapPin, MessageSquareText } from "@tamagui/lucide-icons";
 import { format, sub } from "date-fns";
 import { useEffect } from "react";
 import { ORDER_STATUS, useOrderStore } from "store/orders.store";
-import { RefreshControl } from "react-native";
+import { BackHandler, RefreshControl } from "react-native";
 
 const DeliveryPage = () => {
   const orders = useOrderStore((state) => state.orders);
   const getAll = useOrderStore((state) => state.getOrders);
   const user = useAuthStore((state) => state.user);
+
+  // Navigation
+  const navigation = useNavigation();
+
+  // Effect
+  useEffect(() => {
+    navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault();
+      console.log("onback");
+      BackHandler.exitApp();
+      navigation.dispatch(e.data.action);
+    });
+  }, []);
 
   useEffect(() => {
     getAll();
