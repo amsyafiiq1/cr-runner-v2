@@ -24,9 +24,9 @@ const ViewOrder = () => {
   );
   const startOrder = useOrderStore((state) => state.startOrder);
 
-  const startNow = () => {
-    startOrder(Number(id), user.id);
-    router.navigate({ pathname: "/(ongoing)/[id]", params: { id: id } });
+  const startNow = async () => {
+    await startOrder(Number(id), user.id);
+    router.replace({ pathname: "/(ongoing)/[id]", params: { id: id } });
   };
 
   const onPressCallButton = (number) => {

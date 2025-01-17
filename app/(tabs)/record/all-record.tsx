@@ -1,18 +1,11 @@
 import { MapPin, MessageSquareText } from "@tamagui/lucide-icons";
-import { Link, Stack } from "expo-router";
+import { Link } from "expo-router";
 import { useOrderStore } from "store/orders.store";
-import {
-  Card,
-  Circle,
-  ScrollView,
-  SizableText,
-  Tabs,
-  XStack,
-  YStack,
-} from "tamagui";
+import { Card, Circle, ScrollView, SizableText, XStack, YStack } from "tamagui";
 import { format } from "date-fns";
 import { useEffect } from "react";
 import { useAuthStore } from "store/auth.store";
+import { RefreshControl } from "react-native";
 
 const RecordPage = () => {
   const orders = useOrderStore((state) => state.orders);
@@ -25,7 +18,11 @@ const RecordPage = () => {
 
   return (
     <>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={false} onRefresh={getOrders} />
+        }
+      >
         <YStack gap={"$2"} p={"$2"}>
           {orders.length === 0 ? (
             <Card bordered elevate p={"$3"} m={"$3"}>

@@ -114,14 +114,17 @@ export const useOnGoingStore = create<OnGoingStore>((set) => ({
         longitude: coords.longitude,
       },
     });
+
+    useOnGoingStore.getState().updateUserLiveLocation(coords);
   },
 
   updateUserLiveLocation: async (location) => {
+    console.log("Updating live location", location);
     const { error } = await supabase.from("Runner_Live_Location").upsert(
       {
         runner_id: useAuthStore.getState().user.id,
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: location.latitude,
+        longitude: location.longitude,
       },
       {
         onConflict: "runner_id",

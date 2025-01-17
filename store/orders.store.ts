@@ -71,6 +71,7 @@ export const useOrderStore = create<OrderStore>((set) => ({
   orders: [],
   errors: null,
   getOrders: async () => {
+    console.log("Fetching orders...");
     const { data, error } = await supabase
       .from("Order")
       .select(
@@ -95,7 +96,27 @@ export const useOrderStore = create<OrderStore>((set) => ({
     }
 
     if (data) {
-      set({ orders: data as any, errors: error });
+      const sortedOrders = (data as any[]).sort((a, b) => {
+        // First priority: ON_GOING status
+        if (
+          a.orderStatus === ORDER_STATUS.ON_GOING &&
+          b.orderStatus !== ORDER_STATUS.ON_GOING
+        )
+          return -1;
+        if (
+          b.orderStatus === ORDER_STATUS.ON_GOING &&
+          a.orderStatus !== ORDER_STATUS.ON_GOING
+        )
+          return 1;
+
+        // Second priority: created_at date
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
+
+      set({ orders: sortedOrders, errors: error });
+      console.log("Orders fetched and sorted");
     }
   },
   startOrder: async (orderId, runnerId) => {

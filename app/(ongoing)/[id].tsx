@@ -325,25 +325,41 @@ const OnGoingPage = () => {
                 </YStack>
                 <XStack flex={1} justifyContent="flex-end" alignItems="center">
                   {/* Navigate Icon */}
-                  <YStack ai={"center"}>
-                    <Button
-                      circular
-                      size={"$4"}
-                      flex={1}
-                      jc={"center"}
-                      ai={"center"}
-                      onPress={() =>
-                        openMap({
-                          lat: selectedOrder?.pickup.latitude!,
-                          lng: selectedOrder?.pickup.longitude!,
-                          label: selectedOrder?.pickup.address!,
-                        })
-                      }
-                    >
-                      <Navigation size={"$1"} />
-                    </Button>
-                    <SizableText>Navigate</SizableText>
-                  </YStack>
+                  {selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING ||
+                  selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP ? (
+                    <YStack ai={"center"}>
+                      <Button
+                        circular
+                        size={"$4"}
+                        flex={1}
+                        jc={"center"}
+                        ai={"center"}
+                        onPress={() => {
+                          if (
+                            selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                          ) {
+                            openMap({
+                              lat: naviation.origin.latitude,
+                              lng: naviation.origin.longitude,
+                              label: selectedOrder.pickup.address,
+                            });
+                          } else if (
+                            selectedOrder?.orderStatus ===
+                            ORDER_STATUS.PICKED_UP
+                          ) {
+                            openMap({
+                              lat: naviation.destination.latitude,
+                              lng: naviation.destination.longitude,
+                              label: selectedOrder.dropoff.address,
+                            });
+                          }
+                        }}
+                      >
+                        <Navigation size={"$1"} />
+                      </Button>
+                      <SizableText>Navigate</SizableText>
+                    </YStack>
+                  ) : null}
                 </XStack>
               </XStack>
               <YStack p={"$4"}>
@@ -418,22 +434,21 @@ const OnGoingPage = () => {
                       <Phone size={16} />
                       <SizableText>Call Customer</SizableText>
                     </Button>
-                    {/* <Button
-                      flexDirection="column"
-                      padding={0}
-                      size={"$6"}
-                      chromeless
-                    >
-                      <Phone size={16} />
-                      <SizableText>Call</SizableText>
-                    </Button> */}
                   </XGroup.Item>
                 </XGroup>
                 <YStack>
                   <SizableText
                     textAlign="right"
                     fontWeight={800}
-                    color={"$green10"}
+                    color={
+                      selectedOrder?.orderStatus === ORDER_STATUS.ON_GOING
+                        ? pickupColor
+                        : selectedOrder?.orderStatus === ORDER_STATUS.PICKED_UP
+                        ? dropoffColor
+                        : selectedOrder?.orderStatus === ORDER_STATUS.COMPLETED
+                        ? completedColor
+                        : pickupColor
+                    }
                   >
                     {selectedOrder?.customer.user.name}
                   </SizableText>

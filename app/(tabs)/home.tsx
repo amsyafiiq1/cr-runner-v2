@@ -6,6 +6,7 @@ import { MapPin, MessageSquareText } from "@tamagui/lucide-icons";
 import { format, sub } from "date-fns";
 import { useEffect } from "react";
 import { ORDER_STATUS, useOrderStore } from "store/orders.store";
+import { RefreshControl } from "react-native";
 
 const DeliveryPage = () => {
   const orders = useOrderStore((state) => state.orders);
@@ -18,7 +19,11 @@ const DeliveryPage = () => {
 
   return (
     <>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={false} onRefresh={getAll} />
+        }
+      >
         {!user?.Runner?.isOnDuty ? (
           <Card bordered elevate p={"$3"} m={"$3"}>
             <SizableText>

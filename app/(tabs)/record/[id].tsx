@@ -1,16 +1,18 @@
 import {
+  Button,
   Card,
   Circle,
   ScrollView,
   Separator,
   SizableText,
+  View,
   XStack,
   YStack,
 } from "tamagui";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { MapPin, MessageSquareText } from "@tamagui/lucide-icons";
 import { format } from "date-fns";
-import { useOrderStore } from "store/orders.store";
+import { ORDER_STATUS, useOrderStore } from "store/orders.store";
 
 const ViewOrder = () => {
   const { id } = useLocalSearchParams();
@@ -81,16 +83,39 @@ const ViewOrder = () => {
               </XStack>
             </YStack>
           </Card>
-          <Card bordered elevate p={"$3"}>
-            {order?.remarks ? (
+          {order?.remarks ? (
+            <Card bordered elevate p={"$3"}>
               <XStack flex={1} alignItems="flex-start" gap={"$2"}>
                 <MessageSquareText size={15} mt={5} />
                 <SizableText flexShrink={1}>{order.remarks}</SizableText>
               </XStack>
-            ) : null}
-          </Card>
+            </Card>
+          ) : null}
         </YStack>
       </ScrollView>
+      <View
+        position="absolute"
+        bottom={20}
+        width={"100%"}
+        backgroundColor={"$white"}
+        px={"$3"}
+      >
+        {order?.orderStatus !== ORDER_STATUS.COMPLETED &&
+        order?.orderStatus !== ORDER_STATUS.CANCELED ? (
+          <Button
+            width={"100%"}
+            theme={"blue"}
+            onPress={() =>
+              router.navigate({
+                pathname: "/(ongoing)/[id]",
+                params: { id: order?.id.toString()! },
+              })
+            }
+          >
+            <SizableText>Navigate</SizableText>
+          </Button>
+        ) : null}
+      </View>
     </>
   );
 };

@@ -63,8 +63,7 @@ const _layout = () => {
         name="setting"
         options={{
           tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
-          title: "Setting",
-          headerShown: false,
+          title: "Settings",
           unmountOnBlur: true,
         }}
       />
