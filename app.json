@@ -19,13 +19,13 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.amsyafiiq.crrunner",
       "config": {
-        "googleMapsApiKey": "AIzaSyCsjewXsc0ZO2_JXtdGQixUKdRNsalu4FA"
+        "googleMapsApiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY
       }
     },
     "android": {
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCsjewXsc0ZO2_JXtdGQixUKdRNsalu4FA"
+          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY
         }
       },
       "adaptiveIcon": {
