@@ -27,11 +27,14 @@
     "@tamagui/lucide-icons": "^1.121.11",
     "@tamagui/toast": "^1.121.11",
     "babel-preset-expo": "^11.0.6",
+    "base64-arraybuffer": "^1.0.2",
     "burnt": "^0.12.2",
     "date-fns": "^4.1.0",
     "expo": "~51.0.39",
     "expo-build-properties": "~0.12.5",
+    "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.10",
+    "expo-image-picker": "~15.1.0",
     "expo-linking": "~6.3.1",
     "expo-location": "~17.0.1",
     "expo-router": "~3.5.24",
@@ -64,7 +67,6 @@
     "@tamagui/cli": "^1.121.11",
     "@tamagui/metro-plugin": "^1.121.11",
     "@types/react": "~18.2.79",
-    "@types/react-native": "^0.73.0",
     "typescript": "~5.3.3"
   }
 }

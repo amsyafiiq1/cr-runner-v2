@@ -14,7 +14,13 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { Linking, Platform, StyleSheet } from "react-native";
-import { Bike, MapPinCheck, Navigation, Phone } from "@tamagui/lucide-icons";
+import {
+  Bike,
+  MapPin,
+  MapPinCheck,
+  Navigation,
+  Phone,
+} from "@tamagui/lucide-icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BottomSheet, {
   BottomSheetView,
@@ -229,11 +235,16 @@ const OnGoingPage = () => {
             style={styles.map}
             initialRegion={initialRegion}
             provider={PROVIDER_GOOGLE}
+            showsUserLocation={true}
+            showsMyLocationButton={false}
           >
             {/* Add key prop to force re-render */}
             <MapViewDirections
-              origin={naviation?.origin}
-              destination={naviation?.destination}
+              origin={userLocation}
+              destination={{
+                latitude: naviation?.destination?.latitude!,
+                longitude: naviation?.destination?.longitude!,
+              }}
               apikey={GOOGLE_MAPS_APIKEY!}
               strokeWidth={5}
               strokeColor={
@@ -252,24 +263,34 @@ const OnGoingPage = () => {
                     right: 30,
                     left: 30,
                     top: 100,
-                    bottom: 200,
+                    bottom: 100,
                   },
                 });
               }}
             />
             <Marker
+              title="Pickup Location"
               coordinate={{
-                latitude: naviation?.origin?.latitude!,
-                longitude: naviation?.origin?.longitude!,
+                latitude: selectedOrder.pickup.latitude!,
+                longitude: selectedOrder.pickup.longitude!,
               }}
-            />
+            >
+              <View>
+                <MapPin size={"$4"} color={pickupColor} borderWidth={"$1"} />
+              </View>
+            </Marker>
 
             <Marker
               coordinate={{
-                latitude: naviation?.destination?.latitude!,
-                longitude: naviation?.destination?.longitude!,
+                latitude: selectedOrder.dropoff.latitude!,
+                longitude: selectedOrder.dropoff.longitude!,
               }}
-            ></Marker>
+              title="Dropoff Location"
+            >
+              <View>
+                <MapPin size={"$4"} color={dropoffColor} borderWidth={"$1"} />
+              </View>
+            </Marker>
           </MapView>
         </View>
         <BottomSheet

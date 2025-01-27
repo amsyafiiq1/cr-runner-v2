@@ -44,9 +44,13 @@ TaskManager.defineTask(LOCATION_TRACKING, ({ data, error }) => {
   if (data) {
     const { setUserLiveLocation } = useOnGoingStore.getState();
     const { locations } = data as any;
+    const order = useOnGoingStore.getState().ongoingOrder;
 
     console.log("Location update", locations[0]);
-    setUserLiveLocation(locations[0]);
+
+    if (order) {
+      setUserLiveLocation(locations[0]);
+    }
   }
 });
 

@@ -19,7 +19,7 @@ export const ORDER_STATUS = {
   ON_GOING: "ON_GOING",
   PICKED_UP: "PICKED_UP",
   COMPLETED: "COMPLETED",
-  CANCELED: "CANCELED",
+  CANCELED: "CANCELLED",
 } as const;
 
 // For type annotations
@@ -35,8 +35,8 @@ export interface OrderType {
 export interface Location {
   id: number;
   address: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface Customer {

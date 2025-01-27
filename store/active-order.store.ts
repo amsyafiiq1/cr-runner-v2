@@ -31,7 +31,6 @@ export const useActiveOrderStore = create<ActiveOrderStore>((set) => ({
         orderStatus:order_status
       `
       )
-      .eq("order_status", ORDER_STATUS.OPEN)
       .order("created_at", { ascending: false });
 
     if (error) {

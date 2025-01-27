@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, View, AppState } from "react-native";
+import { StyleSheet, View, AppState, Alert } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { Button, Input, SizableText, XStack, YStack } from "tamagui";
 import { useAuthStore } from "store/auth.store";
 import { router } from "expo-router";
 
-// Tells Supabase Auth to continuously refresh the session automatically if
-// the app is in the foreground. When this is added, you will continue to receive
-// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
-// if the user's session is terminated. This should only be registered once.
 AppState.addEventListener("change", (state) => {
   if (state === "active") {
     supabase.auth.startAutoRefresh();
@@ -20,15 +16,25 @@ AppState.addEventListener("change", (state) => {
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
+  const error = useAuthStore((state) => state.error);
   const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
-  const signUpWithEmail = useAuthStore((state) => state.signUpWithEmail);
+
+  const handleSignIn = () => {
+    if (!email || !password) {
+      Alert.alert("Please fill in all fields");
+      return;
+    }
+
+    signInWithEmail(email, password);
+  };
 
   useEffect(() => {
-    if (user) {
-      router.push("/");
+    if (error) {
+      Alert.alert(error);
+      useAuthStore.setState({ error: undefined });
     }
-  });
+  }, [error]);
 
   return (
     <YStack flex={1} alignItems="center" justifyContent="center" mx={20}>
@@ -57,17 +63,12 @@ export default function Auth() {
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button
-          theme="blue_active"
-          onPress={() => signInWithEmail(email, password)}
-        >
+        <Button theme="blue_active" onPress={() => handleSignIn()}>
           Sign In
         </Button>
       </View>
       <View style={styles.verticallySpaced}>
-        <Button onPress={() => signUpWithEmail(email, password)}>
-          Sign Up
-        </Button>
+        <Button onPress={() => router.push("/(auth)/singup")}>Sign Up</Button>
       </View>
     </YStack>
   );

@@ -23,6 +23,7 @@ const ViewOrder = () => {
     state.orders.find((order) => order.id.toString() === id)
   );
   const startOrder = useOrderStore((state) => state.startOrder);
+  const VALID_STATUSES = ["OPEN", "COMPLETED", "CANCELED"];
 
   const startNow = async () => {
     await startOrder(Number(id), user.id);
@@ -137,9 +138,11 @@ const ViewOrder = () => {
         gap={"$2"}
         w={"100%"}
       >
-        <Button theme={"blue"} onPress={() => startNow()}>
-          Start Now
-        </Button>
+        {VALID_STATUSES.includes(order?.orderStatus!) && (
+          <Button theme={"blue"} onPress={() => startNow()}>
+            Start Now
+          </Button>
+        )}
       </YStack>
     </>
   );

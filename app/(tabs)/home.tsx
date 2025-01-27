@@ -12,23 +12,12 @@ const DeliveryPage = () => {
   const orders = useOrderStore((state) => state.orders);
   const getAll = useOrderStore((state) => state.getOrders);
   const user = useAuthStore((state) => state.user);
-
-  // Navigation
-  const navigation = useNavigation();
-
-  // Effect
-  useEffect(() => {
-    navigation.addListener("beforeRemove", (e) => {
-      e.preventDefault();
-      console.log("onback");
-      BackHandler.exitApp();
-      navigation.dispatch(e.data.action);
-    });
-  }, []);
+  const userSupabase = useAuthStore((state) => state.userSupabase);
 
   useEffect(() => {
     getAll();
-  }, [getAll]);
+    useAuthStore.getState().loadUser(userSupabase?.email!);
+  }, [userSupabase]);
 
   return (
     <>

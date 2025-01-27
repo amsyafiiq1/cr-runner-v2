@@ -4974,15 +4974,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-native@npm:^0.73.0":
-  version: 0.73.0
-  resolution: "@types/react-native@npm:0.73.0"
-  dependencies:
-    react-native: "npm:*"
-  checksum: 10/a764ca5d876dae3c109da449f736c44271b3b236d0d6e836c078247af1419f6d851600c56bb0c26f3e0d1b4be6eaac56b65c1f74ad0f0d05baf8b65dd1d5c597
-  languageName: node
-  linkType: hard
-
 "@types/react@npm:~18.2.79":
   version: 18.2.79
   resolution: "@types/react@npm:18.2.79"
@@ -5632,6 +5623,13 @@ __metadata:
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
   checksum: 10/9706c088a283058a8a99e0bf91b0a2f75497f185980d9ffa8b304de1d9e58ebda7c72c07ebf01dadedaac5b2907b2c6f566f660d62bd336c3468e960403b9d65
+  languageName: node
+  linkType: hard
+
+"base64-arraybuffer@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "base64-arraybuffer@npm:1.0.2"
+  checksum: 10/15e6400d2d028bf18be4ed97702b11418f8f8779fb8c743251c863b726638d52f69571d4cc1843224da7838abef0949c670bde46936663c45ad078e89fee5c62
   languageName: node
   linkType: hard
 
@@ -6527,13 +6525,15 @@ __metadata:
     "@tamagui/metro-plugin": "npm:^1.121.11"
     "@tamagui/toast": "npm:^1.121.11"
     "@types/react": "npm:~18.2.79"
-    "@types/react-native": "npm:^0.73.0"
     babel-preset-expo: "npm:^11.0.6"
+    base64-arraybuffer: "npm:^1.0.2"
     burnt: "npm:^0.12.2"
     date-fns: "npm:^4.1.0"
     expo: "npm:~51.0.39"
     expo-build-properties: "npm:~0.12.5"
+    expo-file-system: "npm:~17.0.1"
     expo-font: "npm:~12.0.10"
+    expo-image-picker: "npm:~15.1.0"
     expo-linking: "npm:~6.3.1"
     expo-location: "npm:~17.0.1"
     expo-router: "npm:~3.5.24"
@@ -7528,6 +7528,26 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 10/639602e4aa8e134ef367a672d36d28c7188ddaa1170fd112c1c221c7bdea4782a01035fde50c17420cbb9c43c61da4a80ea38696eb8daf8dcfa028e30bdf4063
+  languageName: node
+  linkType: hard
+
+"expo-image-loader@npm:~4.7.0":
+  version: 4.7.0
+  resolution: "expo-image-loader@npm:4.7.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10/dbd87fdbf3e50b8c459e5ea985bfd20d77462229e46edefbd62b68e1676416f8608c16cf09103c2fef1bd84ecf55a1fd48f38e1954a2dd535e6f9beef04785bb
+  languageName: node
+  linkType: hard
+
+"expo-image-picker@npm:~15.1.0":
+  version: 15.1.0
+  resolution: "expo-image-picker@npm:15.1.0"
+  dependencies:
+    expo-image-loader: "npm:~4.7.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10/c2acb65a50da29ca8cc24ded80acbc367dff9c717487d49df0bfe5bc7d827a65ce27a876b0a8b5acf86690972e8905dc36ae3fe2c2afa18c02e148a0dc8404ab
   languageName: node
   linkType: hard
 
@@ -12010,7 +12030,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:*, react-native@npm:0.74.5":
+"react-native@npm:0.74.5":
   version: 0.74.5
   resolution: "react-native@npm:0.74.5"
   dependencies:

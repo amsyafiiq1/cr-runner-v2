@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expo-router-example",
-    "slug": "expo-router-example",
+    "name": "cr-runner",
+    "slug": "cr-runner",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,13 +19,13 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.amsyafiiq.crrunner",
       "config": {
-        "googleMapsApiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY
+        "googleMapsApiKey": ""
       }
     },
     "android": {
       "config": {
         "googleMaps": {
-          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY
+          "apiKey": ""
         }
       },
       "adaptiveIcon": {
