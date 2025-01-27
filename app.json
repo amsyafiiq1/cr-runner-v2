@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "cr-runner",
+    "name": "CR Runner",
     "slug": "cr-runner",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#73737d"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -30,7 +30,7 @@
       },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#73737d"
       },
       "package": "com.amsyafiiq.cr_runner"
     },
@@ -63,6 +63,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "12e9de88-3166-4ace-8fb3-42d7f23af011"
+      }
     }
   }
 }
