@@ -1,23 +1,31 @@
 import { Card, Circle, ScrollView, SizableText, XStack, YStack } from "tamagui";
-import { useActiveOrderStore } from "store/active-order.store";
 import { useAuthStore } from "store/auth.store";
-import { Link, useNavigation } from "expo-router";
+import { Link, router } from "expo-router";
 import { MapPin, MessageSquareText } from "@tamagui/lucide-icons";
-import { format, sub } from "date-fns";
+import { format } from "date-fns";
 import { useEffect } from "react";
 import { ORDER_STATUS, useOrderStore } from "store/orders.store";
-import { BackHandler, RefreshControl } from "react-native";
+import { RefreshControl } from "react-native";
 
 const DeliveryPage = () => {
   const orders = useOrderStore((state) => state.orders);
   const getAll = useOrderStore((state) => state.getOrders);
   const user = useAuthStore((state) => state.user);
-  const userSupabase = useAuthStore((state) => state.userSupabase);
+
+  useEffect(() => {}, [user]);
 
   useEffect(() => {
-    getAll();
-    useAuthStore.getState().loadUser(userSupabase?.email!);
-  }, [userSupabase]);
+    if (user) {
+      if (user?.Runner?.status !== "Verified" && user?.Runner?.status) {
+        console.log(user?.Runner?.status);
+        router.replace("/(auth)/create");
+      } else {
+        if (user.Runner.isOnDuty) {
+          getAll();
+        }
+      }
+    }
+  }, [user]);
 
   return (
     <>

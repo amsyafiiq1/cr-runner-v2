@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Spinner, YStack } from "tamagui";
 import { supabase } from "lib/supabase";
 import { router } from "expo-router";
@@ -8,20 +7,19 @@ const index = () => {
   const loadUser = useAuthStore((state) => state.loadUser);
   const user = useAuthStore((state) => state.user);
 
-  useEffect(() => {
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT" || session === null) {
-        console.log("Signed out");
-        router.replace("/(auth)/login");
-      } else if (event === "SIGNED_IN" || session !== null) {
-        console.log("Signed in");
-        router.replace("/(tabs)/home");
-        if (!user) {
-          useAuthStore.getState().loadUser(session?.user?.email!);
-        }
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === "SIGNED_OUT" || session === null) {
+      console.log("Signed out");
+      router.replace("/(auth)/login");
+    } else if (event === "SIGNED_IN" || session !== null) {
+      console.log("Signed in");
+      if (session?.user?.email) {
+        loadUser(session.user.email, session.user);
       }
-    });
-  }, [user]);
+
+      router.replace("/(tabs)/home");
+    }
+  });
 
   return (
     <YStack

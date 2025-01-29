@@ -6,7 +6,7 @@ dotenv.config();
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "cr-runner",
+  name: "CR Runner",
   slug: "cr-runner",
   ios: {
     supportsTablet: true,

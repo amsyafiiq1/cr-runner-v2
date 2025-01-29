@@ -2,7 +2,6 @@ import { Tabs } from "expo-router";
 import { Bell, Bike, ReceiptText, Settings } from "@tamagui/lucide-icons";
 import { Button, Label, Switch, XStack } from "tamagui";
 import { useAuthStore } from "store/auth.store";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const _layout = () => {
   const user = useAuthStore((state) => state.user);

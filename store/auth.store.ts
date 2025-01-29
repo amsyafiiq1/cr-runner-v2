@@ -15,10 +15,11 @@ interface AuthStore {
     password: string,
     user: any
   ) => Promise<void>;
-  loadUser: (email: string) => Promise<void>;
+  loadUser: (email: string, supabaseUser?: User) => Promise<void>;
   signOut: () => Promise<void>;
   subscribeChanges: (email: string) => void;
   updateOnDuty: (isOnDuty: boolean) => Promise<void>;
+  reset: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -194,7 +195,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       });
     }
   },
-  loadUser: async (email) => {
+  loadUser: async (email, supabaseUser?: User) => {
     console.log("🚀 ~ loadUser: ~ email:", email);
     const { data, error } = await supabase
       .from("User")
@@ -215,7 +216,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     console.log("🚀 ~ loadUser: ~ data:", data);
     useAuthStore.getState().subscribeChanges(data.id);
 
-    set({ user: data });
+    set({ user: data, userSupabase: supabaseUser });
   },
   signOut: async () => {
     const { error } = await supabase.auth.signOut();
@@ -267,9 +268,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     if (error) {
       console.log(error);
     }
-
-    if (data) {
-      set({ user: { ...user, Runner: { isOnDuty: isOnDuty } } });
-    }
   },
+  reset: () =>
+    set({ user: null, userSupabase: null, loading: false, error: undefined }),
 }));
